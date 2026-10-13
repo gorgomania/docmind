@@ -1,0 +1,15 @@
+services:                 # список контейнеров
+  db:                     # имя сервиса (любое)
+    image: pgvector/pgvector:pg16   # готовый образ Postgres 16 + pgvector
+    environment:          # переменные окружения (как -e)
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:                # как -p: порт_у_тебя:порт_в_контейнере
+      - "5432:5432"
+    volumes:              # как -v: где хранить данные
+      - docmind-data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:                  # объявляем том
+  docmind-data:
