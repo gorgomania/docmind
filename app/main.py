@@ -1,13 +1,14 @@
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import User
 from app.schemas import UserCreate, UserRead
-from app.security import hash_password
+from app.security import create_access_token, hash_password, verify_password
 
 app = FastAPI()
 
@@ -35,6 +36,16 @@ def register(user_in: UserCreate, db: Annotated[Session, Depends(get_db)]):
     db.refresh(user)
 
     return user
+
+@app.post("/auth/login")
+def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)]):
+    user = db.scalar(select(User).where(User.email == form_data.username))
+    
+    if not (user and verify_password(form_data.password, user.hashed_password)):
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+
+    access_token = create_access_token(user.id)
+    return {"access_token": access_token, "token_type": "bearer"}
     
 
 
