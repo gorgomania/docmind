@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
+from fastapi import Depends, FastAPI
 from sqlalchemy import text
+from sqlalchemy.orm import Session
+
 from app.db import get_db
 
 app = FastAPI()
