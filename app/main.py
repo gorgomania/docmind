@@ -8,7 +8,12 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import User
 from app.schemas import UserCreate, UserRead
-from app.security import create_access_token, hash_password, verify_password
+from app.security import (
+    create_access_token,
+    get_current_user,
+    hash_password,
+    verify_password,
+)
 
 app = FastAPI()
 
@@ -46,6 +51,7 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annota
 
     access_token = create_access_token(user.id)
     return {"access_token": access_token, "token_type": "bearer"}
-    
 
-
+@app.get("/user/me", response_model=UserRead)
+def read_me(user: Annotated[User, Depends(get_current_user)]):
+    return user
